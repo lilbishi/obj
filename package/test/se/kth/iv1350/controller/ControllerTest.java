@@ -14,28 +14,28 @@ public class ControllerTest {
         Printer fakePrinter = new Printer() {
             @Override
             public void printReceipt(ReceiptDTO receipt) {
-                // Do nothing to avoid actual printing
+            
             }
         };
 
         InventoryManagement fakeInventory = new InventoryManagement() {
             @Override
             public void updateInventory(SaleDTO saleDTO) {
-                // Stubbed
+            
             }
         };
 
         Discount fakeDiscount = new Discount() {
             @Override
             public float fetchDiscountInfo(int customerID, SaleDTO saleInfo) {
-                return 0.1f; // Always apply 10% discount
+                return 0.1f; 
             }
         };
 
         AccountingSystem fakeAccounting = new AccountingSystem() {
             @Override
             public void updateAccounting(SaleDTO saleAfterDiscount) {
-                // Stubbed
+                
             }
         };
 
@@ -48,7 +48,7 @@ public class ControllerTest {
     public void testStartNewSaleAndRegisterItem() {
         controller.startNewSale();
         controller.registerItem("Testprodukt", 50f, 0.06f, 2);
-        controller.payment(100f); // Required before endSale
+        controller.payment(100f); 
 
         SaleDTO saleInfo = controller.endSale();
 
@@ -59,8 +59,8 @@ public class ControllerTest {
     @Test
     public void testPaymentReturnsCorrectChange() {
         controller.startNewSale();
-        controller.registerItem("Testprodukt", 20f, 0.06f, 2); // Total before discount: 40
-        float change = controller.payment(50f); // 10% discount = 36 -> change = 14
+        controller.registerItem("Testprodukt", 20f, 0.06f, 2); 
+        float change = controller.payment(50f); 
 
         assertEquals(14f, change, 0.01f);
     }
@@ -69,9 +69,9 @@ public class ControllerTest {
     public void testRequestDiscountAppliesCorrectAmount() {
         controller.startNewSale();
         controller.registerItem("Testprodukt", 100f, 0.06f, 1);
-        controller.payment(100f); // Required before calling requestDiscount
+        controller.payment(100f); 
 
-        float discount = controller.requestDiscount(123); // Should be 0.1f from stub
+        float discount = controller.requestDiscount(123); 
 
         assertEquals(0.1f, discount, 0.001f);
     }
