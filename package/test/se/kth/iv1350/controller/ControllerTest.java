@@ -1,28 +1,83 @@
 package se.kth.iv1350.controller;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import se.kth.iv1350.integration.*;
 import se.kth.iv1350.model.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ControllerTest {
+    private Controller controller;
+
+    @BeforeEach
+    public void setUp() {
+        Printer fakePrinter = new Printer() {
+            @Override
+            public void printReceipt(ReceiptDTO receipt) {
+                // Do nothing to avoid actual printing
+            }
+        };
+
+        InventoryManagement fakeInventory = new InventoryManagement() {
+            @Override
+            public void updateInventory(SaleDTO saleDTO) {
+                // Stubbed
+            }
+        };
+
+        Discount fakeDiscount = new Discount() {
+            @Override
+            public float fetchDiscountInfo(int customerID, SaleDTO saleInfo) {
+                return 0.1f; // Always apply 10% discount
+            }
+        };
+
+        AccountingSystem fakeAccounting = new AccountingSystem() {
+            @Override
+            public void updateAccounting(SaleDTO saleAfterDiscount) {
+                // Stubbed
+            }
+        };
+
+        CashRegister cashRegister = new CashRegister();
+
+        controller = new Controller(fakePrinter, fakeInventory, fakeDiscount, fakeAccounting, cashRegister);
+    }
 
     @Test
-    public void testRegisterItemAndEndSaleReturnsCorrectTotal() {
-        Controller contr = new Controller(
-                new Printer(),
-                new InventoryManagement(),
-                new Discount(),
-                new AccountingSystem(),
-                new CashRegister()
-        );
+    public void testStartNewSaleAndRegisterItem() {
+        controller.startNewSale();
+        controller.registerItem("Testprodukt", 50f, 0.06f, 2);
+        controller.payment(100f); // Required before endSale
 
-        contr.startNewSale();
-        contr.registerItem("TestItem", 20f, 0.06f, 2);
-        contr.payment(100f);
+        SaleDTO saleInfo = controller.endSale();
 
-        SaleDTO saleInfo = contr.endSale();
-        assertEquals(40f, saleInfo.getTotalPrice(), 0.001f);
+        float expectedTotal = 50f * 2 * (1 - 0.1f);
+        assertEquals(expectedTotal, saleInfo.getTotalPrice(), 0.01f);
+    }
+
+    @Test
+    public void testPaymentReturnsCorrectChange() {
+        controller.startNewSale();
+        controller.registerItem("Testprodukt", 20f, 0.06f, 2); // Total before discount: 40
+        float change = controller.payment(50f); // 10% discount = 36 -> change = 14
+
+        assertEquals(14f, change, 0.01f);
+    }
+
+    @Test
+    public void testRequestDiscountAppliesCorrectAmount() {
+        controller.startNewSale();
+        controller.registerItem("Testprodukt", 100f, 0.06f, 1);
+        controller.payment(100f); // Required before calling requestDiscount
+
+        float discount = controller.requestDiscount(123); // Should be 0.1f from stub
+
+        assertEquals(0.1f, discount, 0.001f);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        controller = null;
     }
 }
