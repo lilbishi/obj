@@ -40,18 +40,20 @@ public class Printer {
             ItemDTO item = items.get(i);
             int qty = quantities.get(i);
 
-            // Format: 2x         BigWheel HEJ Oatmeal   29,90 SEK
+
             String priceFormatted = String.format("%.2f", item.getPrice()).replace('.', ',');
             System.out.printf("%-10s %-24s %6s SEK\n", qty + "x", item.getName(), priceFormatted);
         }
 
         System.out.println();
         String totalFormatted = String.format("%.2f", receipt.getTotalPrice()).replace('.', ',');
+        String vatFormatted = String.format("%.2f", receipt.getTotalVAT()).replace('.', ',');
         String paidFormatted = String.format("%.2f", receipt.getAmountPaid()).replace('.', ',');
         String discountFormatted = String.format("%.0f%%", receipt.getDiscountAmount()).replace('.', ',');
         String changeFormatted = String.format("%.2f", receipt.getChange()).replace('.', ',');
 
         System.out.printf("Total price(incl. VAT): %s SEK\n", totalFormatted);
+        System.out.printf("Total VAT: %s SEK\n", vatFormatted);
         System.out.printf("The amount paid: %s SEK\n", paidFormatted);
         System.out.printf("Discount amount: %s\n", discountFormatted);
         System.out.printf("Change: %s SEK\n", changeFormatted);
