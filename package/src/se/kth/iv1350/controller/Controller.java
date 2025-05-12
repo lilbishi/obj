@@ -47,10 +47,20 @@ public class Controller {
 
      * @return The registered item information.
      */
-    public void registerItem(String name, float price, float vat, int quantity) {
-        ItemDTO item = new ItemDTO(null, name, price, vat, "");
-        sale.addItem(item, quantity);
+    public ItemDTO registerItem(String itemID, int quantity) {
+        ItemDTO item = inventory.fetchItem(itemID, "employee123");
+        if (item != null) {
+            sale.addItem(item, quantity);
+            return item;
+        } else {
+            return null;
+        }
     }
+
+    public float getCurrentTotalPrice() {
+        return sale.calculateTotal();
+    }
+
 
 
     /**
@@ -109,6 +119,3 @@ public class Controller {
     }
 
 }
-
-
-
