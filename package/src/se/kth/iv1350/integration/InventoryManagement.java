@@ -25,8 +25,9 @@ public class InventoryManagement {
         } else if (itemID.equals("def456")) {
             return new ItemDTO("def456", "Protein Bar", 14.90f, 0.06f, "25g, low sugar");
         }
-        return null; // If item is not found
+        return null;
     }
+
 
     /**
      * Updates the inventory system after a sale has been completed.
