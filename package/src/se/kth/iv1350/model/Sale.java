@@ -1,3 +1,4 @@
+// Updated Sale.java for VAT handling (removes totalVAT field and computes dynamically)
 package se.kth.iv1350.model;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,6 @@ public class Sale {
     private Map<ItemDTO, Integer> itemMap;
     private Payment payment;
     private float totalPrice;
-    private float totalVAT;
     private LocalDateTime saleTime;
     private float discount;
 
@@ -20,18 +20,26 @@ public class Sale {
     public Sale() {
         this.itemMap = new LinkedHashMap<>();
         this.totalPrice = 0;
-        this.totalVAT = 0;
         this.discount = 0;
     }
 
     public void addItem(ItemDTO item, int amount) {
         itemMap.put(item, itemMap.getOrDefault(item, 0) + amount);
         totalPrice += item.getPrice() * amount;
-        totalVAT += item.getPrice() * item.getVAT() * amount;
     }
 
     public float calculateTotal() {
         return totalPrice * (1 - discount);
+    }
+
+    public float calculateTotalVAT() {
+        float vat = 0;
+        for (Map.Entry<ItemDTO, Integer> entry : itemMap.entrySet()) {
+            ItemDTO item = entry.getKey();
+            int quantity = entry.getValue();
+            vat += item.getPrice() * item.getVAT() * quantity;
+        }
+        return vat;
     }
 
     public void applyDiscount(float discount) {
@@ -50,7 +58,7 @@ public class Sale {
         if (payment == null) {
             throw new IllegalStateException("Payment is not registered yet. Cannot retrieve sale information.");
         }
-        return new SaleDTO(calculateTotal(), totalVAT, saleTime, payment.getAmountPaid());
+        return new SaleDTO(calculateTotal(), calculateTotalVAT(), saleTime, payment.getAmountPaid());
     }
 
     public Payment getPayment() {
@@ -62,8 +70,8 @@ public class Sale {
             throw new IllegalStateException("Cannot generate receipt without payment.");
         }
 
+        float totalVAT = calculateTotalVAT();
         float change = payment.calculateChange(calculateTotal());
-
 
         List<ItemDTO> items = new ArrayList<>();
         List<Integer> quantities = new ArrayList<>();
