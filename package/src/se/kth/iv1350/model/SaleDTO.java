@@ -2,6 +2,8 @@ package se.kth.iv1350.model;
 
 import java.time.LocalDateTime;
 
+
+
 /**
  * Represents a summary of a completed sale.
  */
@@ -54,4 +56,5 @@ public class SaleDTO {
         return amountPaid;
     }
 }
+
 
